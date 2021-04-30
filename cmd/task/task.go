@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/immanoj16/task/pkg/task"
+	"github.com/immanoj16/task/internal/task"
 	"github.com/spf13/pflag"
 )
 

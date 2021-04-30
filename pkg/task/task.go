@@ -1,41 +1,40 @@
 package task
 
 import (
-	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"sync"
 
-	"github.com/immanoj16/task/pkg/errors"
+	"github.com/immanoj16/task/pkg/taskfile"
 )
 
-const defaultTaskFile = `# https://taskfile.dev
+// Executer executes a taskfile
+type Executer struct {
+	TaskFile *taskfile.TaskFile
 
-version: '3'
+	Dir         string
+	Entrypoint  string
+	Force       bool
+	Watch       bool
+	Verbose     bool
+	Silent      bool
+	Dry         bool
+	Summary     bool
+	Parallel    bool
+	Color       bool
+	Concurrency bool
 
-vars:
-	GREETING: Hello, World!
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
 
-tasks:
-	default:
-		cmds:
-			- echo "{{.GREETING}}"
-		silent: true
-`
+	Logger      interface{}
+	Compiler    interface{}
+	Output      interface{}
+	OutputStyle string
 
-// TaskFile creates a new taskfile
-func TaskFile(w io.Writer, dir string) error {
-	f := filepath.Join(dir, "Taskfile.yml")
+	taskVars interface{}
 
-	if _, err := os.Stat(f); err == nil {
-		return errors.ErrTaskfileAlreadyExists
-	}
-
-	if err := ioutil.WriteFile(f, []byte(defaultTaskFile), 0644); err != nil {
-		return err
-	}
-
-	fmt.Fprintf(w, "Taskfile.yml created in the current directory\n")
-	return nil
+	concurrencySemaphone chan struct{}
+	taskCallCount        map[string]*int32
+	mkdirMutexMap        map[string]*sync.Mutex
 }
